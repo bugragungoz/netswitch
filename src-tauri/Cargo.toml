@@ -23,6 +23,7 @@ serde_json = "1"
 tokio = { version = "1", features = ["full"] }
 uuid = { version = "1", features = ["v4"] }
 thiserror = "1"
+sysinfo = "0.31"
 
 [target.'cfg(windows)'.dependencies]
 is_elevated = "0.1"

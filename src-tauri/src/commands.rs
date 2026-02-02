@@ -64,6 +64,25 @@ pub async fn block_application(request: BlockRequest) -> Result<BlockResult, Str
         .collect::<Vec<_>>()
         .join(", ");
 
+    // Security: Validate path exists before running PowerShell script
+    let app_path = std::path::Path::new(&request.app_path);
+    if !app_path.exists() {
+        return Err(format!("Path does not exist: {}", request.app_path));
+    }
+    if !app_path.is_dir() {
+        return Err(format!("Path is not a directory: {}", request.app_path));
+    }
+
+    // Security: Sanitize inputs for PowerShell
+    let sanitized_app_name = request.app_name
+        .replace("\"", "\\\"")
+        .replace("$", "`$")
+        .replace("`", "``");
+    let sanitized_app_path = request.app_path
+        .replace("\\", "\\\\")
+        .replace("\"", "\\\"")
+        .replace("$", "`$");
+
     let script = format!(
         r#"
     # Admin check
@@ -188,8 +207,8 @@ pub async fn block_application(request: BlockRequest) -> Result<BlockResult, Str
     Write-CroxzState -Progress 95 -Status "Finalizing"
     Write-CroxzLog "Blocking complete. Success: $successCount, Errors: $errorCount"
 "#,
-        app_name = request.app_name.replace("\"", "\\\""),
-        app_path = request.app_path.replace("\\", "\\\\").replace("\"", "\\\""),
+        app_name = sanitized_app_name,
+        app_path = sanitized_app_path,
         extensions = extensions_str,
         excluded_keywords = excluded_keywords_str,
         excluded_files = excluded_files_str
@@ -445,15 +464,6 @@ pub async fn create_restore_point(description: String) -> Result<BlockResult, St
         }),
         Err(e) => Err(e.to_string()),
     }
-}
-
-/// Opens a directory selection dialog.
-/// Note: In Tauri v2, the dialog is handled directly from the frontend using @tauri-apps/plugin-dialog
-#[tauri::command]
-pub async fn select_directory() -> Result<Option<String>, String> {
-    // The frontend uses the dialog plugin directly
-    // This command is kept for compatibility but not used
-    Ok(None)
 }
 
 #[derive(Debug, Clone, Serialize)]

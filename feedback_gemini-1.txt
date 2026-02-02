@@ -1,0 +1,88 @@
+Harika bir proje seçimi! **Tauri v2**, **React (shadcn/ui)** ve **PowerShell** kombinasyonu, Windows'a özgü sistem araçları geliştirmek için oldukça modern ve performanslı bir yaklaşım. Özellikle "Firewall Manager" gibi native entegrasyon gerektiren bir iş için doğru teknolojileri seçmişsin.
+
+`bugragungoz/netswitch` reponu ve paylaştığın kodları detaylıca inceledim. Hem güvenlik, hem performans hem de kod mimarisi açısından tespitlerim ve önerilerim aşağıdadır:
+
+### 1. Performans ve Mimari İyileştirmeleri
+
+#### ⚠️ Kritik: Ağ İzleme (Network Monitor) Performansı
+
+`src-tauri/src/network.rs` dosyasında `get_network_processes` ve `get_network_interfaces` fonksiyonları her çağrıldığında yeni bir **PowerShell process'i spawn ediyor**.
+
+* **Sorun:** PowerShell'in başlatılması (startup time) maliyetlidir. Eğer frontend bu fonksiyonu `setInterval` ile saniyede bir çağırıyorsa, CPU kullanımın tavan yapacaktır ve uygulama hantallaşacaktır.
+* **Çözüm:** Ağ izleme işlemleri için PowerShell yerine **Rust Native** kütüphaneleri kullanmalısın.
+* **Öneri:** [`sysinfo`](https://www.google.com/search?q=%5Bhttps://crates.io/crates/sysinfo%5D(https://crates.io/crates/sysinfo)) kütüphanesini kullan. Bu kütüphane process'leri, ağ kullanımını ve disk I/O'yu PowerShell çağırmadan, doğrudan Windows API'leri ile çok hızlı bir şekilde okur.
+* Bu değişiklik uygulamanın kaynak tüketimini %90 oranında düşürebilir.
+
+
+
+#### 🛠️ PowerShell Script Yönetimi
+
+`src-tauri/src/commands.rs` dosyasında PowerShell scriptlerini Rust kodunun içine `format!` makrosu ile "hardcoded" (gömülü) string olarak yazmışsın.
+
+* **Sorun:**
+* Kodun okunabilirliğini düşürüyor.
+* Script üzerinde çalışmayı ve test etmeyi zorlaştırıyor.
+* Syntax hatalarını derleme zamanında veya IDE'de görmek zorlaşıyor.
+
+
+* **Çözüm:** Scriptleri ayrı `.ps1` dosyaları olarak `src-tauri/scripts/` klasörüne koy ve Rust tarafında `include_str!` makrosu ile derleme anında içeri al.
+* *Örnek:* `let script_content = include_str!("../scripts/block_app.ps1");`
+
+
+
+### 2. Güvenlik ve Hata Yönetimi
+
+#### 🛡️ Command Injection Riski
+
+`commands.rs` içindeki `block_application` fonksiyonunda kullanıcıdan gelen girdileri (`app_name`, `app_path`) doğrudan string formatlama ile scriptin içine gömüyorsun.
+
+* **Risk:** `replace("\"", "\\\"")` ile tırnak işaretlerini kaçış karakteriyle düzeltmişsin, bu basit hataları önler ancak kötü niyetli bir dosya yolu veya isim, PowerShell'in `$ variable` expansion özelliğini veya başka özel karakterleri tetikleyebilir.
+* **Çözüm:** Mümkünse değişkenleri scriptin "içine" yazmak yerine, PowerShell scriptini parametre kabul edecek şekilde (param block) yazıp, değişkenleri argüman olarak geçmek daha güvenlidir. Ancak Tauri'nin `Command::new` yapısı ile karmaşık objeleri (array gibi) geçmek zor olabilir. Mevcut yapıda en azından dosya yollarının gerçekten var olduğunu Rust tarafında `std::path::Path::exists` ile kontrol edip sonra script'e göndermek ekstra bir güvenlik katmanı sağlar.
+
+#### 🔒 Yönetici İzni (Administrator Privileges)
+
+Uygulamanın neredeyse tüm fonksiyonları Yönetici izni gerektiriyor. Şu anki yapıda scriptlerin başında `$isAdmin` kontrolü var.
+
+* **Öneri:** Uygulamanın çalışması için yönetici izni şartsa, bunu **Manifest** dosyasında belirterek uygulamanın her zaman yönetici olarak başlamasını sağlayabilirsin (`requireAdministrator`).
+* **Alternatif:** Eğer kullanıcıya sürekli UAC (User Account Control) penceresi çıkıyorsa bu kötü bir deneyimdir. Uygulama açılışta bir kez yetki alıp, tüm işlemleri bu yetkiyle yapmalı (ki şu anki yapın buna uygun görünüyor, eğer ana process elevate edilmişse child process'ler de öyle çalışır).
+
+### 3. Kod ve Repo İyileştirmeleri
+
+#### 📂 Proje Yapısı ve Temizlik
+
+* **`components.json`:** `uploaded` dosyalarında `components.json` görüyorum. Bu genellikle `shadcn/ui` tarafından kullanılır. Bu dosyanın kök dizinde olması normal ama gereksiz dosyaların `.gitignore` ile dışlandığından emin ol.
+* **Dizin Seçimi:** `select_directory` komutu Rust tarafında boş (`Ok(None)`), çünkü frontend tarafında plugin kullanıyorsun. Bu kullanılmayan Rust fonksiyonunu kaldırarak kodu temiz tutabilirsin.
+
+#### 🐛 Olası Bug: Firewall Kural İsimleri
+
+Script içinde kural ismini oluştururken:
+`$baseRuleName = "$($RuleNamePrefix)$($AppName) - $($file.Name)"`
+ve 220 karakter limiti koymuşsun.
+
+* **Sorun:** Eğer bir klasörde aynı isme sahip ama farklı uzantılı (örn: `data.exe` ve `data.dll` - gerçi exe ve dll aynı isimde nadir olur ama mümkün) dosyalar varsa veya farklı alt klasörlerde aynı isimde dosyalar varsa (örn: `bin/run.exe` ve `tools/run.exe`), script sadece dosya ismini (`$file.Name`) kullandığı için çakışma yaşayabilir veya yanlış dosya için kural oluşturuldu sanabilir.
+* **Çözüm:** Dosya isminin yanına dosya yolunun bir hash'ini veya göreceli yolunu (relative path) eklemek benzersizliği garanti eder.
+
+### 4. Yeni Özellik Önerileri (Feature Request)
+
+1. **Whitelist Modu (Allowlist):**
+* Şu an sadece "Block" (Engelleme) üzerine kurulu. Kullanıcılar bazen "Her şeyi engelle, sadece buna izin ver" moduna ihtiyaç duyar. Windows Firewall bu konuda katıdır ama "Block All" profili altına "Allow" kuralları ekleyecek bir özellik eklenebilir.
+
+
+2. **Sürükle-Bırak (Drag & Drop):**
+* Kullanıcıların klasör seçmek yerine, uygulamanın üzerine bir `.exe` veya klasör sürükleyip bırakarak engelleme yapabilmesi UX'i çok artırır. Tauri'nin File Drop API'si bunu destekliyor.
+
+
+3. **Geçici Engelleme (Süreli Kural):**
+* "Bu uygulamayı 1 saatliğine engelle" gibi bir özellik, odaklanma (focus) araçları gibi kullanılmasını sağlayabilir.
+
+
+4. **Profil Yönetimi:**
+* "Oyun Modu", "İş Modu" gibi profiller oluşturup, tek tıkla birden fazla kural grubunu aktif/pasif hale getirmek harika olur.
+
+
+
+### Özetle
+
+Projen **MVP (Minimum Viable Product)** aşaması için gayet başarılı ve modern bir yapıya sahip. Ancak "Production" (Canlı) kullanıma geçmeden önce özellikle **Network Monitor modülünü Rust native'e çevirmen** uygulamanın pil ömrü ve performansı için kritik önem taşıyor.
+
+Başarılar dilerim! GitHub'da yıldızı hak eden bir proje. ⭐

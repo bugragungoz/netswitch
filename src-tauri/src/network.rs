@@ -1,4 +1,6 @@
 use serde::{Deserialize, Serialize};
+use sysinfo::{Networks, System};
+use std::collections::HashMap;
 
 /// Represents a process with network activity
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -21,99 +23,67 @@ pub struct NetworkInterface {
     pub status: String,
 }
 
-/// Gets list of processes with network connections using netstat-like approach
-/// Simplified version without Get-Counter which can be slow
+/// Gets list of processes with network connections using sysinfo (native Rust)
 #[tauri::command]
 pub async fn get_network_processes() -> Result<Vec<NetworkProcess>, String> {
+    let mut sys = System::new();
+    sys.refresh_processes(sysinfo::ProcessesToUpdate::All);
+
+    // Get processes that are likely using network (we can't get exact connection count from sysinfo,
+    // but we can list running processes - for detailed connection info, we still need netstat)
     #[cfg(windows)]
     {
         use std::os::windows::process::CommandExt;
         const CREATE_NO_WINDOW: u32 = 0x08000000;
 
-        // Simplified PowerShell - just get connections without performance counters
-        let output = std::process::Command::new("powershell")
-            .args([
-                "-NoProfile",
-                "-ExecutionPolicy", "Bypass",
-                "-WindowStyle", "Hidden",
-                "-Command",
-                r#"
-                $ErrorActionPreference = 'SilentlyContinue'
-                
-                # Get TCP connections grouped by process
-                $tcpConns = Get-NetTCPConnection -State Established, Listen | 
-                    Group-Object OwningProcess
-                
-                # Get UDP endpoints grouped by process  
-                $udpConns = Get-NetUDPEndpoint | Group-Object OwningProcess
-                
-                # Build process list
-                $processMap = @{}
-                
-                foreach ($group in $tcpConns) {
-                    $pid = [int]$group.Name
-                    if (-not $processMap.ContainsKey($pid)) {
-                        $proc = Get-Process -Id $pid -ErrorAction SilentlyContinue
-                        if ($proc) {
-                            $processMap[$pid] = @{
-                                pid = $pid
-                                name = $proc.ProcessName
-                                tcp_connections = 0
-                                udp_connections = 0
-                                bytes_sent = 0
-                                bytes_received = 0
-                            }
-                        }
-                    }
-                    if ($processMap.ContainsKey($pid)) {
-                        $processMap[$pid].tcp_connections = $group.Count
-                    }
-                }
-                
-                foreach ($group in $udpConns) {
-                    $pid = [int]$group.Name
-                    if (-not $processMap.ContainsKey($pid)) {
-                        $proc = Get-Process -Id $pid -ErrorAction SilentlyContinue
-                        if ($proc) {
-                            $processMap[$pid] = @{
-                                pid = $pid
-                                name = $proc.ProcessName
-                                tcp_connections = 0
-                                udp_connections = 0
-                                bytes_sent = 0
-                                bytes_received = 0
-                            }
-                        }
-                    }
-                    if ($processMap.ContainsKey($pid)) {
-                        $processMap[$pid].udp_connections = $group.Count
-                    }
-                }
-                
-                @($processMap.Values) | ConvertTo-Json -Compress
-                "#,
-            ])
+        // Use netstat for connection info but process names from sysinfo (faster)
+        let output = std::process::Command::new("netstat")
+            .args(["-ano"])
             .creation_flags(CREATE_NO_WINDOW)
             .output()
-            .map_err(|e| format!("Failed to run PowerShell: {}", e))?;
+            .map_err(|e| format!("Failed to run netstat: {}", e))?;
 
         let stdout = String::from_utf8_lossy(&output.stdout);
-        let json_str = stdout.trim();
+        let mut process_map: HashMap<u32, NetworkProcess> = HashMap::new();
 
-        if json_str.is_empty() || json_str == "null" || json_str == "@()" {
-            return Ok(vec![]);
+        for line in stdout.lines().skip(4) {
+            let parts: Vec<&str> = line.split_whitespace().collect();
+            if parts.len() >= 5 {
+                let protocol = parts[0];
+                if let Ok(pid) = parts.last().unwrap_or(&"0").parse::<u32>() {
+                    if pid == 0 {
+                        continue;
+                    }
+
+                    let entry = process_map.entry(pid).or_insert_with(|| {
+                        let name = sys
+                            .process(sysinfo::Pid::from_u32(pid))
+                            .map(|p| p.name().to_string_lossy().to_string())
+                            .unwrap_or_else(|| format!("PID {}", pid));
+
+                        NetworkProcess {
+                            pid,
+                            name,
+                            tcp_connections: 0,
+                            udp_connections: 0,
+                            bytes_sent: 0,
+                            bytes_received: 0,
+                        }
+                    });
+
+                    if protocol.starts_with("TCP") {
+                        entry.tcp_connections += 1;
+                    } else if protocol.starts_with("UDP") {
+                        entry.udp_connections += 1;
+                    }
+                }
+            }
         }
 
-        // PowerShell returns single object without array brackets if only one result
-        let processes: Vec<NetworkProcess> = if json_str.starts_with('[') {
-            serde_json::from_str(json_str).unwrap_or_default()
-        } else if json_str.starts_with('{') {
-            serde_json::from_str::<NetworkProcess>(json_str)
-                .map(|p| vec![p])
-                .unwrap_or_default()
-        } else {
-            vec![]
-        };
+        let mut processes: Vec<NetworkProcess> = process_map.into_values().collect();
+        processes.sort_by(|a, b| {
+            (b.tcp_connections + b.udp_connections).cmp(&(a.tcp_connections + a.udp_connections))
+        });
 
         Ok(processes)
     }
@@ -124,65 +94,51 @@ pub async fn get_network_processes() -> Result<Vec<NetworkProcess>, String> {
     }
 }
 
-/// Gets network interface statistics
+/// Gets network interface statistics using sysinfo (native Rust - much faster than PowerShell)
 #[tauri::command]
 pub async fn get_network_interfaces() -> Result<Vec<NetworkInterface>, String> {
-    #[cfg(windows)]
-    {
-        use std::os::windows::process::CommandExt;
-        const CREATE_NO_WINDOW: u32 = 0x08000000;
+    let networks = Networks::new_with_refreshed_list();
 
-        let output = std::process::Command::new("powershell")
-            .args([
-                "-NoProfile",
-                "-ExecutionPolicy", "Bypass",
-                "-WindowStyle", "Hidden",
-                "-Command",
-                r#"
-                $ErrorActionPreference = 'SilentlyContinue'
-                $adapters = Get-NetAdapter | Where-Object { $_.Status -eq 'Up' }
-                $result = @()
-                
-                foreach ($adapter in $adapters) {
-                    $stats = Get-NetAdapterStatistics -Name $adapter.Name -ErrorAction SilentlyContinue
-                    $result += @{
-                        name = $adapter.Name
-                        description = $adapter.InterfaceDescription
-                        bytes_sent = if ($stats) { [long]$stats.SentBytes } else { 0 }
-                        bytes_received = if ($stats) { [long]$stats.ReceivedBytes } else { 0 }
-                        status = $adapter.Status
-                    }
-                }
-                
-                $result | ConvertTo-Json -Compress
-                "#,
-            ])
-            .creation_flags(CREATE_NO_WINDOW)
-            .output()
-            .map_err(|e| format!("Failed to run PowerShell: {}", e))?;
+    let interfaces: Vec<NetworkInterface> = networks
+        .iter()
+        .map(|(name, data)| NetworkInterface {
+            name: name.to_string(),
+            description: name.to_string(), // sysinfo doesn't provide description
+            bytes_sent: data.total_transmitted(),
+            bytes_received: data.total_received(),
+            status: "Up".to_string(),
+        })
+        .collect();
 
-        let stdout = String::from_utf8_lossy(&output.stdout);
-        let json_str = stdout.trim();
+    Ok(interfaces)
+}
 
-        if json_str.is_empty() || json_str == "null" {
-            return Ok(vec![]);
-        }
+/// System statistics
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct SystemStats {
+    pub cpu_usage: f32,
+    pub ram_used_gb: f32,
+    pub ram_total_gb: f32,
+}
 
-        let interfaces: Vec<NetworkInterface> = if json_str.starts_with('[') {
-            serde_json::from_str(json_str).unwrap_or_default()
-        } else if json_str.starts_with('{') {
-            serde_json::from_str::<NetworkInterface>(json_str)
-                .map(|i| vec![i])
-                .unwrap_or_default()
-        } else {
-            vec![]
-        };
+/// Gets system CPU and RAM usage using sysinfo (native Rust)
+#[tauri::command]
+pub async fn get_system_stats_native() -> Result<SystemStats, String> {
+    let mut sys = System::new();
+    
+    // Need to refresh twice with delay for accurate CPU usage
+    sys.refresh_cpu_usage();
+    std::thread::sleep(std::time::Duration::from_millis(200));
+    sys.refresh_cpu_usage();
+    sys.refresh_memory();
 
-        Ok(interfaces)
-    }
+    let cpu_usage = sys.global_cpu_usage();
+    let ram_used = sys.used_memory() as f64 / 1_073_741_824.0; // bytes to GB
+    let ram_total = sys.total_memory() as f64 / 1_073_741_824.0;
 
-    #[cfg(not(windows))]
-    {
-        Ok(vec![])
-    }
+    Ok(SystemStats {
+        cpu_usage,
+        ram_used_gb: ram_used as f32,
+        ram_total_gb: ram_total as f32,
+    })
 }

@@ -21,7 +21,6 @@ pub fn run() {
             commands::remove_firewall_rules,
             commands::open_windows_firewall,
             commands::create_restore_point,
-            commands::select_directory,
             commands::get_firewall_stats,
             settings::load_settings,
             settings::save_settings,
