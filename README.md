@@ -1,6 +1,8 @@
 # NetSwitch
 
-Windows firewall rule manager and network control application built with Tauri, React, and TypeScript.
+Windows firewall rule manager built with Tauri and PowerShell. Uses dynamic firewall scripts to block application internet access with granular control over directories, file types, and exclusions. Modern UI powered by shadcn/ui components.
+
+> Built with Claude Opus 4.5
 
 ## Features
 
@@ -31,36 +33,22 @@ Windows firewall rule manager and network control application built with Tauri, 
 
 - **System Restore**: Create system restore points before making changes
 
-## Tech Stack
-
-- **Frontend**: React 18, TypeScript, Tailwind CSS, shadcn/ui, Recharts
-- **Backend**: Rust, Tauri 2
-- **Platform**: Windows 10/11
-
 ## Requirements
 
 - Windows 10 or later
 - Administrator privileges for firewall operations
 
+## Installation
+
+Download the latest installer from [Releases](https://github.com/bugragungoz/netswitch/releases).
+
 ## Development
 
 ```bash
-# Install dependencies
 npm install
-
-# Run in development mode
 npm run tauri dev
-
-# Build for production
-npm run tauri build
 ```
-
-## Build Output
-
-Production builds are located in:
-- `src-tauri/target/release/NetSwitch.exe` (standalone)
-- `src-tauri/target/release/bundle/nsis/` (installer)
 
 ## License
 
-MIT
+MIT License - see [LICENSE](LICENSE)
