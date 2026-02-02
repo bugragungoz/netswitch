@@ -1,10 +1,11 @@
+import { useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Shield } from "lucide-react";
 import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 
 interface AdminBadgeProps {
   className?: string;
@@ -25,10 +26,16 @@ const ADMIN_TOOLTIP = (
 );
 
 export function AdminBadge({ className }: AdminBadgeProps) {
+  const [isOpen, setIsOpen] = useState(false);
+
   return (
-    <Tooltip delayDuration={0}>
-      <TooltipTrigger asChild>
-        <span className="inline-flex">
+    <Popover open={isOpen} onOpenChange={setIsOpen}>
+      <PopoverTrigger asChild>
+        <span
+          className="inline-flex"
+          onMouseEnter={() => setIsOpen(true)}
+          onMouseLeave={() => setIsOpen(false)}
+        >
           <Badge
             variant="warning"
             className={`cursor-help select-none text-[10px] px-1.5 py-0 h-5 hover:bg-amber-500/40 transition-colors ${className}`}
@@ -37,10 +44,15 @@ export function AdminBadge({ className }: AdminBadgeProps) {
             Admin
           </Badge>
         </span>
-      </TooltipTrigger>
-      <TooltipContent side="left" className="p-3 max-w-[280px]">
+      </PopoverTrigger>
+      <PopoverContent
+        side="left"
+        className="p-3 max-w-[280px]"
+        onMouseEnter={() => setIsOpen(true)}
+        onMouseLeave={() => setIsOpen(false)}
+      >
         {ADMIN_TOOLTIP}
-      </TooltipContent>
-    </Tooltip>
+      </PopoverContent>
+    </Popover>
   );
 }
