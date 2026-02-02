@@ -1,4 +1,4 @@
-# NetSwitch
+# netSwitch
 
 Windows firewall rule manager built with Tauri and PowerShell. Uses dynamic firewall scripts to block application internet access with granular control over directories, file types, and exclusions. Modern UI powered by shadcn/ui components.
 
@@ -14,7 +14,7 @@ Windows firewall rule manager built with Tauri and PowerShell. Uses dynamic fire
 
 - **Firewall Management**: View and manage Windows Firewall rules
   - Statistics overview (total, inbound, outbound, enabled, disabled)
-  - NetSwitch-created rules management
+  - netSwitch-created rules management
   - Direct access to Windows Firewall console (wf.msc)
 
 - **Network Monitor**: Real-time network activity monitoring
@@ -40,7 +40,9 @@ Windows firewall rule manager built with Tauri and PowerShell. Uses dynamic fire
 
 ## Installation
 
-Download the latest installer from [Releases](https://github.com/bugragungoz/netswitch/releases).
+Download the latest release from [Releases](https://github.com/bugragungoz/netswitch/releases):
+- **netSwitch.exe** - Portable executable (no installation required)
+- **netSwitch_0.1.0_x64-setup.exe** - Windows installer
 
 ## Development
 

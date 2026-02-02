@@ -1,6 +1,6 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
-  "productName": "NetSwitch",
+  "productName": "netSwitch",
   "version": "0.1.0",
   "identifier": "com.croxz.netswitch",
   "build": {
@@ -13,7 +13,7 @@
     "withGlobalTauri": true,
     "windows": [
       {
-        "title": "NetSwitch",
+        "title": "netSwitch",
         "width": 920,
         "height": 620,
         "minWidth": 640,

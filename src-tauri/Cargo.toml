@@ -4,7 +4,7 @@ version = "0.1.0"
 description = "NetSwitch - Network Control & Firewall Manager"
 authors = ["Croxz"]
 license = "MIT"
-repository = "https://github.com/croxz/netswitch"
+repository = "https://github.com/bugragungoz/netswitch"
 edition = "2021"
 
 [lib]

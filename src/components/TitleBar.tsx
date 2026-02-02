@@ -15,12 +15,12 @@ export function TitleBar() {
       )}
     >
       <div data-tauri-drag-region className="flex items-center gap-2">
-        <div className="flex h-6 w-6 items-center justify-center rounded bg-gradient-to-br from-primary to-purple-600">
-          <Zap className="h-3.5 w-3.5 text-primary-foreground" />
+        <div className="flex h-6 w-6 items-center justify-center rounded bg-gradient-to-br from-blue-500 to-purple-600">
+          <Zap className="h-3.5 w-3.5 text-white" />
         </div>
         <div data-tauri-drag-region>
           <h1 className="text-xs font-semibold leading-none">
-            NetSwitch
+            netSwitch
           </h1>
           <p className="text-[10px] text-muted-foreground leading-none mt-0.5">
             Network Control & Firewall Manager

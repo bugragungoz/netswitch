@@ -18,7 +18,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 
-const GITHUB_REPO = "https://github.com/croxz/netswitch";
+const GITHUB_REPO = "https://github.com/bugragungoz/netswitch";
 
 interface AdminContextType {
   isAdmin: boolean;
@@ -201,13 +201,13 @@ function App() {
                 </>
               ) : (
                 <>
-                  <span className="text-muted-foreground/70">NetSwitch v0.1.0</span>
+                  <span className="text-muted-foreground/70">netSwitch v0.1.0</span>
                   <button
                     onClick={openGitHub}
                     className="flex items-center gap-1 text-muted-foreground hover:text-foreground transition-colors"
                   >
                     <Github className="h-3 w-3" />
-                    <span>github.com/croxz/netswitch</span>
+                    <span>github.com/bugragungoz/netswitch</span>
                     <ExternalLink className="h-2.5 w-2.5" />
                   </button>
                 </>
