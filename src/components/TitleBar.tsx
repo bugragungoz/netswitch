@@ -1,5 +1,5 @@
 import { getCurrentWindow } from "@tauri-apps/api/window";
-import { Zap, Minus, Square, X } from "lucide-react";
+import { Shield, Minus, Square, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
@@ -16,7 +16,7 @@ export function TitleBar() {
     >
       <div data-tauri-drag-region className="flex items-center gap-2">
         <div className="flex h-6 w-6 items-center justify-center rounded bg-gradient-to-br from-blue-500 to-purple-600">
-          <Zap className="h-3.5 w-3.5 text-white" />
+          <Shield className="h-3.5 w-3.5 text-white" />
         </div>
         <div data-tauri-drag-region>
           <h1 className="text-xs font-semibold leading-none">
