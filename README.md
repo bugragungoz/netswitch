@@ -3,8 +3,8 @@
 Windows firewall rule manager built with Tauri and PowerShell. Uses dynamic firewall scripts to block application internet access with granular control over directories, file types, and exclusions. Modern UI powered by shadcn/ui components.
 
 > Built with Claude Opus 4.5
-> ! Disclaimer / Status !
-> This project is **still under development** 
+> - ! Disclaimer / Status !
+> - This project is **still under development** 
 > - It is maybe functional but **not fully tested**
 > - Use it at your own risk, especially on critical systems
 > - Since this tool requires **administrator privileges**, please use it with caution
