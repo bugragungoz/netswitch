@@ -1,26 +1,20 @@
 # netSwitch
 
-<table border="0">
-  <tr>
-    <td width="150px">
-      <img src="src-tauri/icons/logo-white.png" alt="netSwitch Logo" width="128" height="128">
-    </td>
-    <td>
-      <h3>Windows Firewall Rule Manager</h3>
-      <p>
-        Technical tool for managing Windows Firewall rules effectively. Built with Tauri, React, and Rust.
-      </p>
-      <p>
-        <em>Built with <strong>Opus 4.5</strong> & <strong>Gemini 3 Pro</strong></em>
-      </p>
-      <div>
-        <a href="https://opensource.org/licenses/MIT"><img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="License: MIT"></a>
-        <a href="https://tauri.app/"><img src="https://img.shields.io/badge/Tauri-2.0-blue.svg" alt="Tauri"></a>
-        <a href="https://react.dev/"><img src="https://img.shields.io/badge/React-18-blue.svg" alt="React"></a>
-      </div>
-    </td>
-  </tr>
-</table>
+<img src="src-tauri/icons/logo-white.png" align="left" width="128" height="128" alt="netSwitch Logo">
+
+### Windows Firewall Rule Manager
+
+Technical tool for managing Windows Firewall rules effectively. Built with Tauri, React, and Rust.
+
+*Built with **Opus 4.5** & **Gemini 3 Pro***
+
+<br clear="left"/>
+
+<div>
+  <a href="https://opensource.org/licenses/MIT"><img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="License: MIT"></a>
+  <a href="https://tauri.app/"><img src="https://img.shields.io/badge/Tauri-2.0-blue.svg" alt="Tauri"></a>
+  <a href="https://react.dev/"><img src="https://img.shields.io/badge/React-18-blue.svg" alt="React"></a>
+</div>
 
 ---
 
