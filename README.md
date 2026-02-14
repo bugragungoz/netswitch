@@ -1,6 +1,17 @@
 # netSwitch
 
-**Windows Firewall Rule Manager**
+<div align="center">
+  <img src="src-tauri/icons/icon.png" alt="netSwitch Logo" width="128" height="128">
+
+  **Windows Firewall Rule Manager**  
+  *Built with Opus 4.5 & Gemini 3 Pro*
+
+  [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+  [![Tauri](https://img.shields.io/badge/Tauri-2.0-blue.svg)](https://tauri.app/)
+  [![React](https://img.shields.io/badge/React-18-blue.svg)](https://react.dev/)
+</div>
+
+---
 
 Technical tool for managing Windows Firewall rules effectively. Built with Tauri, React, and Rust.
 
@@ -37,9 +48,10 @@ npm run tauri build
 
 ## Tech Stack
 
-- **Frontend**: React 18, TypeScript, shadcn/ui
+- **Frontend**: React 18, TypeScript, [shadcn/ui](https://ui.shadcn.com/)
 - **Backend**: Rust (Tauri 2)
 - **System Integration**: WinAPI, PowerShell
+- **AI Development**: Code developed with **Opus 4.5** & **Gemini 3 Pro**.
 
 ## License
 
