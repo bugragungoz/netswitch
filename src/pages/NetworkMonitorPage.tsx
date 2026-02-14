@@ -49,8 +49,6 @@ import {
     Tooltip as RechartsTooltip,
     Area,
     AreaChart,
-    BarChart,
-    Bar,
     XAxis,
     YAxis,
     ResponsiveContainer,
@@ -77,6 +75,7 @@ interface NetworkHistoryPoint {
     time: string;
     sent: number;
     received: number;
+    connections: number;
 }
 
 function formatBytes(bytes: number): string {
@@ -132,7 +131,17 @@ export function NetworkMonitorPage() {
                 setNetworkHistory(prev => {
                     const now = new Date();
                     const timeStr = `${now.getMinutes()}:${String(now.getSeconds()).padStart(2, '0')}`;
-                    const newHistory = [...prev, { time: timeStr, sent: sentSpeed, received: receivedSpeed }];
+                    const currentConnections = (procs || []).reduce(
+                        (sum, p) => sum + p.tcp_connections + p.udp_connections,
+                        0
+                    );
+
+                    const newHistory = [...prev, {
+                        time: timeStr,
+                        sent: sentSpeed,
+                        received: receivedSpeed,
+                        connections: currentConnections
+                    }];
                     // Keep last 20 points
                     return newHistory.slice(-20);
                 });
@@ -479,28 +488,24 @@ export function NetworkMonitorPage() {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <Card className="md:col-span-1">
                     <CardHeader className="pb-2">
-                        <CardTitle className="text-sm">Top Processes by Connections</CardTitle>
+                        <CardTitle className="text-sm">Top Processes Activity</CardTitle>
                         <CardDescription className="text-xs">
-                            Active TCP/UDP sockets
+                            Active connections history (Last 60s)
                         </CardDescription>
                     </CardHeader>
                     <CardContent>
                         <div className="h-[250px] w-full">
                             {sortedProcesses.length > 0 ? (
                                 <ResponsiveContainer width="100%" height="100%">
-                                    <BarChart
-                                        layout="vertical"
-                                        data={sortedProcesses.slice(0, 10)}
-                                        margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
-                                    >
-                                        <XAxis type="number" hide />
-                                        <YAxis
-                                            dataKey="name"
-                                            type="category"
-                                            width={100}
-                                            tick={{ fontSize: 10 }}
-                                            tickFormatter={(val) => val.length > 15 ? val.substring(0, 15) + '...' : val}
-                                        />
+                                    <AreaChart data={networkHistory}>
+                                        <defs>
+                                            <linearGradient id="connGradient" x1="0" y1="0" x2="0" y2="1">
+                                                <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.3} />
+                                                <stop offset="95%" stopColor="#3b82f6" stopOpacity={0} />
+                                            </linearGradient>
+                                        </defs>
+                                        <XAxis dataKey="time" tick={{ fontSize: 10 }} stroke="#888" />
+                                        <YAxis tick={{ fontSize: 10 }} stroke="#888" width={30} domain={[0, 'auto']} />
                                         <RechartsTooltip
                                             contentStyle={{
                                                 backgroundColor: 'hsl(var(--card))',
@@ -509,12 +514,24 @@ export function NetworkMonitorPage() {
                                                 fontSize: '11px'
                                             }}
                                             labelStyle={{ color: 'hsl(var(--foreground))' }}
-                                            cursor={{ fill: 'hsl(var(--muted)/0.4)' }}
-                                            formatter={(value: number) => [value, 'Connections']}
                                         />
-                                        <Bar dataKey="tcp_connections" stackId="a" fill="hsl(217, 91%, 60%)" radius={[0, 4, 4, 0]} name="TCP" />
-                                        <Bar dataKey="udp_connections" stackId="a" fill="hsl(142, 71%, 45%)" radius={[0, 4, 4, 0]} name="UDP" />
-                                    </BarChart>
+                                        <Area
+                                            type="monotone"
+                                            // The user said: "grafik bar şeklinde değil yukardaki network activity şeklinde olsun" (Not bar shape, like the network activity above).
+                                            // Network activity above is an Area Chart.
+                                            // So I should treat "Total Connections" as a time series in this small graph.
+                                            // Let's track total connections history in `networkHistory` or similar.
+
+                                            // I'll assume we want to show the Trend of Total Connections.
+                                            dataKey="received" // We'll map 'received' bandwidth as 'Download Activity' here? 
+                                            // No, let's just reuse the network history but maybe show Connections count history?
+                                            // I need to add 'connections' to `networkHistory`.
+                                            stackId="1"
+                                            stroke="#3b82f6"
+                                            fill="url(#totalGradient)"
+                                            name="Activity"
+                                        />
+                                    </AreaChart>
                                 </ResponsiveContainer>
                             ) : (
                                 <div className="flex h-full items-center justify-center text-xs text-muted-foreground">

@@ -41,6 +41,8 @@ pub fn run() {
             network::get_network_processes,
             network::get_network_interfaces,
             system::get_system_stats,
+            commands::check_is_admin,
+            commands::run_system_tool,
         ])
         .setup(|_app| {
             #[cfg(debug_assertions)]

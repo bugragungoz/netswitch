@@ -44,6 +44,22 @@ function App() {
   const [systemStats, setSystemStats] = useState<SystemStats | null>(null);
 
   useEffect(() => {
+    // Check if pending admin status from previous session or restart
+    const checkAdmin = async () => {
+      try {
+        const adminStatus = await invoke<boolean>("check_is_admin");
+        if (adminStatus) {
+          setAdmin(true);
+        }
+      } catch (err) {
+        console.error("Failed to check admin status:", err);
+      }
+    };
+
+    checkAdmin();
+  }, []);
+
+  useEffect(() => {
     if (!isAdmin) return;
 
     const loadStats = async () => {

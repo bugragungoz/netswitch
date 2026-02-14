@@ -2,6 +2,7 @@ import {
   Network, Globe, Shield, Terminal, Wifi, Settings2,
   ExternalLink, FileText, Cog
 } from "lucide-react";
+import { invoke } from "@tauri-apps/api/core";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import {
@@ -74,8 +75,8 @@ export function ManageRulesPage() {
 
   const handleOpenShortcut = async (command: string) => {
     try {
-      const { open } = await import("@tauri-apps/plugin-shell");
-      await open(command);
+      // Use the backend command which handles paths and UAC better for these tools
+      await invoke("run_system_tool", { command });
     } catch (error) {
       console.error("Failed to open shortcut:", error);
     }

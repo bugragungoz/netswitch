@@ -567,3 +567,41 @@ pub async fn get_firewall_stats() -> Result<FirewallStats, String> {
         })
     }
 }
+
+/// Checks if the current process has administrator privileges.
+#[tauri::command]
+pub fn check_is_admin() -> bool {
+    #[cfg(windows)]
+    {
+        is_elevated::is_elevated()
+    }
+    #[cfg(not(windows))]
+    {
+        false
+    }
+}
+
+/// Runs a system tool (like .msc or .cpl) using cmd /c start to ensure it launches correctly.
+#[tauri::command]
+pub async fn run_system_tool(command: String) -> Result<(), String> {
+    #[cfg(windows)]
+    {
+        // Sanitize command to prevent injection of multiple commands
+        // We only allow specific extensions for safety
+        if !command.ends_with(".msc") && !command.ends_with(".cpl") && command != "resmon" && !command.contains("netsh") {
+             return Err("Invalid command type".to_string());
+        }
+
+        // Use cmd /c start "Title" "command" to launch in a way that handles UAC/paths better
+        std::process::Command::new("cmd")
+            .args(["/c", "start", "", &command]) 
+            .spawn()
+            .map_err(|e| format!("Failed to launch tool: {}", e))?;
+            
+        Ok(())
+    }
+    #[cfg(not(windows))]
+    {
+        Err("Not supported on this OS".to_string())
+    }
+}

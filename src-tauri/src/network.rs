@@ -103,27 +103,49 @@ pub async fn get_network_interfaces() -> Result<Vec<NetworkInterface>, String> {
     
     let networks = Networks::new_with_refreshed_list();
     let mut unique_interfaces: Vec<NetworkInterface> = Vec::new();
-    let mut seen_names = HashSet::new();
+    let mut seen_descriptions = HashSet::new();
+
+    // Keywords to filter out unless they are the only option
+    // "LightWeight Filter" often appears as duplicates of the real adapter
+    let filter_keywords = ["LightWeight", "Filter", "Virtual", "Pseudo", "Loopback", "Teredo", "6to4", "Isatap"];
 
     for (name, data) in networks.iter() {
-        // Skip loopback and if we've already seen this interface name
-        if name.to_lowercase().contains("loopback") || !seen_names.insert(name.to_string()) {
+        let name_lower = name.to_lowercase();
+        
+        // Skip obvious loopback or non-physical/virtual generic adapters that are usually noise
+        if name_lower.contains("loopback") {
             continue;
         }
 
-        // Filter out some common virtual/duplicate adaptors if needed, 
-        // but primarily rely on exact name deduplication for now.
+        // Identify if this is likely a filter driver (duplicate)
+        let is_filter = filter_keywords.iter().any(|k| name_lower.contains(&k.to_lowercase()));
         
-        unique_interfaces.push(NetworkInterface {
+        // Use MAC address or just name for deduplication if possible, but sysinfo 0.30+ exposes mac_address()
+        // For now, we'll try to dedup by name/description but prioritize "clean" names.
+        // If we have "Wi-Fi" and "Wi-Fi-Realtek LightWeight Filter", we want "Wi-Fi".
+        
+        let interface = NetworkInterface {
             name: name.to_string(),
-            description: name.to_string(), // sysinfo still limits us here, but we can improve later
+            description: name.to_string(),
             bytes_sent: data.total_transmitted(),
             bytes_received: data.total_received(),
-            status: "Up".to_string(),
-        });
+            status: "Up".to_string(), // sysinfo doesn't give Up/Down efficiently per interface without refresh, assuming Up if listed usually
+        };
+
+        if is_filter {
+            // Only add filters if we haven't seen a "real" adapter with a similar name prefix? 
+            // Or just skip them aggressively as the user requested "one of them".
+            // "Wi-Fi-Realtek..." vs "Wi-Fi".
+            // We'll skip them entirely for now as they are usually redundant stats.
+            continue;
+        }
+
+        if seen_descriptions.insert(name.to_string()) {
+            unique_interfaces.push(interface);
+        }
     }
 
-    // Sort by name for consistent display
+    // Sort by name
     unique_interfaces.sort_by(|a, b| a.name.cmp(&b.name));
 
     Ok(unique_interfaces)
