@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize};
-use sysinfo::{Networks, System};
 use std::collections::HashMap;
+use crate::SystemState;
 
 /// Represents a process with network activity
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -23,14 +23,15 @@ pub struct NetworkInterface {
     pub status: String,
 }
 
-/// Gets list of processes with network connections using sysinfo (native Rust)
+/// Gets list of processes with network connections using sysinfo (native Rust) + netstat
 #[tauri::command]
-pub async fn get_network_processes() -> Result<Vec<NetworkProcess>, String> {
-    let mut sys = System::new();
+pub async fn get_network_processes(
+    state: tauri::State<'_, SystemState>,
+) -> Result<Vec<NetworkProcess>, String> {
+    // Lock the shared System state (tokio async mutex)
+    let mut sys = state.0.lock().await;
     sys.refresh_processes(sysinfo::ProcessesToUpdate::All);
 
-    // Get processes that are likely using network (we can't get exact connection count from sysinfo,
-    // but we can list running processes - for detailed connection info, we still need netstat)
     #[cfg(windows)]
     {
         use std::os::windows::process::CommandExt;
@@ -97,48 +98,33 @@ pub async fn get_network_processes() -> Result<Vec<NetworkProcess>, String> {
 /// Gets network interface statistics using sysinfo (native Rust - much faster than PowerShell)
 #[tauri::command]
 pub async fn get_network_interfaces() -> Result<Vec<NetworkInterface>, String> {
+    use sysinfo::Networks;
+    use std::collections::HashSet;
+    
     let networks = Networks::new_with_refreshed_list();
+    let mut unique_interfaces: Vec<NetworkInterface> = Vec::new();
+    let mut seen_names = HashSet::new();
 
-    let interfaces: Vec<NetworkInterface> = networks
-        .iter()
-        .map(|(name, data)| NetworkInterface {
+    for (name, data) in networks.iter() {
+        // Skip loopback and if we've already seen this interface name
+        if name.to_lowercase().contains("loopback") || !seen_names.insert(name.to_string()) {
+            continue;
+        }
+
+        // Filter out some common virtual/duplicate adaptors if needed, 
+        // but primarily rely on exact name deduplication for now.
+        
+        unique_interfaces.push(NetworkInterface {
             name: name.to_string(),
-            description: name.to_string(), // sysinfo doesn't provide description
+            description: name.to_string(), // sysinfo still limits us here, but we can improve later
             bytes_sent: data.total_transmitted(),
             bytes_received: data.total_received(),
             status: "Up".to_string(),
-        })
-        .collect();
+        });
+    }
 
-    Ok(interfaces)
-}
+    // Sort by name for consistent display
+    unique_interfaces.sort_by(|a, b| a.name.cmp(&b.name));
 
-/// System statistics
-#[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct SystemStats {
-    pub cpu_usage: f32,
-    pub ram_used_gb: f32,
-    pub ram_total_gb: f32,
-}
-
-/// Gets system CPU and RAM usage using sysinfo (native Rust)
-#[tauri::command]
-pub async fn get_system_stats_native() -> Result<SystemStats, String> {
-    let mut sys = System::new();
-    
-    // Need to refresh twice with delay for accurate CPU usage
-    sys.refresh_cpu_usage();
-    std::thread::sleep(std::time::Duration::from_millis(200));
-    sys.refresh_cpu_usage();
-    sys.refresh_memory();
-
-    let cpu_usage = sys.global_cpu_usage();
-    let ram_used = sys.used_memory() as f64 / 1_073_741_824.0; // bytes to GB
-    let ram_total = sys.total_memory() as f64 / 1_073_741_824.0;
-
-    Ok(SystemStats {
-        cpu_usage,
-        ram_used_gb: ram_used as f32,
-        ram_total_gb: ram_total as f32,
-    })
+    Ok(unique_interfaces)
 }

@@ -15,8 +15,8 @@ export function TitleBar() {
       )}
     >
       <div data-tauri-drag-region className="flex items-center gap-2">
-        <div className="flex h-6 w-6 items-center justify-center rounded bg-gradient-to-br from-blue-500 to-purple-600">
-          <Shield className="h-3.5 w-3.5 text-white" />
+        <div className="flex h-6 w-6 items-center justify-center rounded bg-primary/10">
+          <Shield className="h-4 w-4 text-primary" />
         </div>
         <div data-tauri-drag-region>
           <h1 className="text-xs font-semibold leading-none">

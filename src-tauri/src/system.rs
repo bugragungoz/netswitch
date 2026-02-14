@@ -1,5 +1,5 @@
 use serde::Serialize;
-use sysinfo::System;
+use crate::SystemState;
 
 #[derive(Debug, Clone, Serialize)]
 pub struct SystemStats {
@@ -10,12 +10,20 @@ pub struct SystemStats {
 
 /// Gets system CPU and RAM statistics using sysinfo (native Rust - much faster than PowerShell)
 #[tauri::command]
-pub async fn get_system_stats() -> Result<SystemStats, String> {
-    let mut sys = System::new();
+pub async fn get_system_stats(
+    state: tauri::State<'_, SystemState>,
+) -> Result<SystemStats, String> {
+    // Lock the shared System state (tokio async mutex)
+    let mut sys = state.0.lock().await;
     
-    // Need to refresh twice with delay for accurate CPU usage
+    // Refresh CPU usage twice with delay for accurate reading
     sys.refresh_cpu_usage();
-    std::thread::sleep(std::time::Duration::from_millis(100));
+    
+    // Drop lock, wait, then reacquire to avoid holding lock during sleep
+    drop(sys);
+    tokio::time::sleep(tokio::time::Duration::from_millis(100)).await;
+    
+    let mut sys = state.0.lock().await;
     sys.refresh_cpu_usage();
     sys.refresh_memory();
 

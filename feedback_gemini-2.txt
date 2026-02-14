@@ -1,0 +1,104 @@
+Kodlarını inceledim ve önceki geri bildirimlerimi dikkate alarak **çok kritik ve başarılı iyileştirmeler** yaptığını görüyorum. Proje şu an hem performans hem de güvenlik açısından çok daha sağlam bir zemine oturmuş.
+
+İşte detaylı incelemem ve **"Next Level"** için yeni önerilerim:
+
+### ✅ Yapılan İyileştirmeler (Başarılı)
+
+1. **Performans Devrimi (`network.rs`):**
+* **Sysinfo Entegrasyonu:** `Cargo.toml`'a `sysinfo` eklenmiş ve `get_network_interfaces` artık tamamen native Rust ile çalışıyor. Bu, saniyelik sorgularda CPU kullanımını sıfıra yakın tutacaktır. Harika!
+* **Netstat Optimizasyonu:** `get_network_processes` içinde hantal PowerShell pipeline'ı yerine, sadece veri çekmek için `netstat` kullanıp işlemeyi (parsing) Rust tarafında yapman çok akıllıca. Bu işlem süresini ciddi oranda düşürür.
+
+
+2. **Güvenlik Sıkılaştırması (`commands.rs`):**
+* **Rust Tarafında Validasyon:** Script çalışmadan önce `app_path.exists()` ve `app_path.is_dir()` kontrolü eklemen, hatalı yolların PowerShell'e hiç gitmemesini sağlıyor. Çok temiz bir önlem.
+* **Input Sanitization:** `.replace("\"", "\\\"").replace("$", "`$")` gibi kaçış karakteri eklemeleri, basit "command injection" ve syntax hatalarını büyük ölçüde engeller.
+
+
+
+---
+
+### 🚀 İyileştirme Önerileri (Daha İyi Bir Mimari İçin)
+
+Kodun şu an gayet iyi çalışır durumda, ancak "Production Ready" (Canlı Ortam) standartlarına gelmesi için aşağıdaki mimari değişiklikleri şiddetle öneririm:
+
+#### 1. ⚠️ Performans: `System` Nesnesini Sürekli Yeniden Oluşturma (`network.rs`)
+
+Şu anki kodda her fonksiyon çağrıldığında `let mut sys = System::new();` diyorsun.
+
+* **Sorun:** `System::new()` pahalı bir işlemdir. Her saniye (frontend'den polling yapıldığında) sıfırdan sistem process listesini oluşturur.
+* **Çözüm:** `sys` nesnesini uygulamanın **State**'inde (Tauri State) tutmalı ve `Mutex` ile korumalısın. Sadece `sys.refresh_processes()` çağırmak, sıfırdan oluşturmaktan çok daha hafiftir.
+
+**Örnek Uygulama Planı:**
+
+```rust
+// main.rs içinde
+struct SystemState(Mutex<sysinfo::System>);
+
+fn main() {
+    let sys = sysinfo::System::new_all();
+    tauri::Builder::default()
+        .manage(SystemState(Mutex::new(sys))) // State olarak ekle
+        // ...
+}
+
+// network.rs içinde
+#[tauri::command]
+pub async fn get_network_processes(state: tauri::State<'_, SystemState>) -> Result<Vec<NetworkProcess>, String> {
+    let mut sys = state.0.lock().await; // Mutex'i kilitle
+    sys.refresh_processes(sysinfo::ProcessesToUpdate::All);
+    // ... işlemler
+}
+
+```
+
+#### 2. ⚠️ Async Blocking Hatası: `std::thread::sleep`
+
+`get_system_stats_native` fonksiyonunda `std::thread::sleep` kullanmışsın.
+
+* **Sorun:** Tauri komutları `async` çalışır. `std::thread::sleep` kullanmak, o anki thread'i (runtime thread'ini) tamamen bloklar ve uygulamanın diğer async işlemlerini (arayüz tepkilerini) geciktirebilir.
+* **Çözüm:** `tokio::time::sleep` kullanmalısın.
+
+```rust
+// Yanlış
+std::thread::sleep(std::time::Duration::from_millis(200));
+
+// Doğru (Tokio ile)
+tokio::time::sleep(tokio::time::Duration::from_millis(200)).await;
+
+```
+
+#### 3. 🛠️ Netstat Parsing ve Dil Sorunu (Locale)
+
+`netstat -ano` çıktısını parse ederken `stdout.lines().skip(4)` diyerek ilk 4 satırı atlıyorsun.
+
+* **Risk:** Bu kod İngilizce Windows'ta çalışır ama Türkçe veya Almanca Windows'ta başlık satır sayısı veya formatı farklı olabilir mi? Genelde `netstat` standarttır ama risklidir.
+* **Alternatif:** Eğer ileride bu sorun yaratırsa, `netstat2` gibi Rust native kütüphaneleri veya Windows API (IP Helper API) kullanan bir çözüm düşünebilirsin. Şimdilik MVP için kabul edilebilir.
+
+#### 4. 🧹 Kod Temizliği: Script Ayrıştırma (Hala Geçerli)
+
+`commands.rs` içindeki devasa `format!` bloğu hala duruyor. Kodu okumayı zorlaştırıyor.
+
+* **Öneri:** `src-tauri/scripts/block_app.ps1` adında bir dosya oluştur, scripti oraya koy. Rust içine şöyle çek:
+```rust
+// Derleme zamanında dosyayı string olarak gömer
+const BLOCK_SCRIPT: &str = include_str!("../scripts/block_app.ps1");
+
+// Kullanırken formatla değil, replace ile değişkenleri koyabilirsin
+let script = BLOCK_SCRIPT.replace("{{APP_NAME}}", &sanitized_app_name)...
+
+```
+
+
+Bu sayede PowerShell scriptini VS Code'da renklendirilmiş (syntax highlighting) olarak düzenleyebilirsin.
+
+### Sonuç
+
+Yaptığın değişiklikler projeyi amatör seviyeden profesyonel bir yapıya taşımış. Özellikle **sysinfo** kullanımı uygulamanın hafifliğini çok artıracak.
+
+**Öncelik Sırası:**
+
+1. `std::thread::sleep` -> `tokio::time::sleep` (Hemen yap, çok basit).
+2. `System` nesnesini `Tauri State` içine almak (Performans için kritik).
+3. Scriptleri ayrı dosyaya almak (Kod kalitesi için).
+
+Eline sağlık, proje çok iyi gidiyor! Başka takıldığın bir nokta var mı?

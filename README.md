@@ -1,61 +1,46 @@
 # netSwitch
 
-Windows firewall rule manager built with Tauri and PowerShell. Uses dynamic firewall scripts to block application internet access with granular control over directories, file types, and exclusions. Modern UI powered by shadcn/ui components.
+**Windows Firewall Rule Manager**
 
-> Built with Claude Opus 4.5
-> - ! Disclaimer / Status !
-> - This project is **still under development** 
-> - It is maybe functional but **not fully tested**
-> - Use it at your own risk, especially on critical systems
-> - Since this tool requires **administrator privileges**, please use it with caution
+Technical tool for managing Windows Firewall rules effectively. Built with Tauri, React, and Rust.
 
 ## Features
 
-- **Block Applications**: Create firewall rules to block internet access for applications
-  - Scan directories for executables (*.exe, *.dll)
-  - Include/exclude subdirectories
-  - Keywords and file exclusions
-  - Inbound and outbound rule creation
-
-- **Firewall Management**: View and manage Windows Firewall rules
-  - Statistics overview (total, inbound, outbound, enabled, disabled)
-  - netSwitch-created rules management
-  - Direct access to Windows Firewall console (wf.msc)
-
-- **Network Monitor**: Real-time network activity monitoring
-  - Active connections by process (TCP/UDP)
-  - Network interface statistics
-  - Live bandwidth graph
-  - Interface filtering (hide virtual adapters)
-
-- **System Tools**: Quick access to Windows network utilities
-  - Windows Firewall (wf.msc)
-  - Network Connections (ncpa.cpl)
-  - Internet Properties (inetcpl.cpl)
-  - Device Manager (devmgmt.msc)
-  - Network Shell (netsh)
-  - Resource Monitor (resmon)
-
-- **System Restore**: Create system restore points before making changes
+- **Application Blocking**: Granular control over application internet access (inbound/outbound).
+- **Firewall Management**: Direct interface for managing Windows Firewall rules.
+- **Network Monitoring**: Real-time process connection tracking (TCP/UDP) and interface statistics.
+- **System Tools**: Quick access to essential Windows network utilities (`wf.msc`, `ncpa.cpl`, etc.).
+- **Restore Points**: Integrated system restore point creation for safety.
 
 ## Requirements
 
-- Windows 10 or later
-- Administrator privileges for firewall operations
+- **OS**: Windows 10/11
+- **Permissions**: Administrator privileges required for firewall operations.
 
 ## Installation
 
-Download the latest release from [Releases](https://github.com/bugragungoz/netswitch/releases):
-- **netSwitch.exe** - Portable executable (no installation required)
-- **netSwitch_0.1.0_x64-setup.exe** - Windows installer
+Download the latest release from [Releases](https://github.com/bugragungoz/netswitch/releases).
+Portable (`.exe`) and Installer (`.msi`/`.exe`) versions available.
 
 ## Development
 
 ```bash
+# Install dependencies
 npm install
+
+# Run in development mode
 npm run tauri dev
+
+# Build for production
+npm run tauri build
 ```
+
+## Tech Stack
+
+- **Frontend**: React 18, TypeScript, shadcn/ui
+- **Backend**: Rust (Tauri 2)
+- **System Integration**: WinAPI, PowerShell
 
 ## License
 
-MIT License - see [LICENSE](LICENSE)
+MIT License. See [LICENSE](LICENSE) for details.

@@ -77,10 +77,10 @@ function App() {
 
           {/* Disclaimer Banner */}
           <div className="border-b bg-amber-500/10 dark:bg-amber-500/5 shrink-0">
-            <div className="flex items-center gap-2 px-4 py-1.5 text-[11px] text-amber-700 dark:text-amber-400">
-              <AlertTriangle className="h-3 w-3 flex-shrink-0" />
+            <div className="flex items-center gap-2 px-4 py-1.5 text-[11px] font-medium text-amber-900 dark:text-amber-200">
+              <AlertTriangle className="h-3.5 w-3.5 flex-shrink-0" />
               <span>
-                Use responsibly. Circumventing software licenses is illegal. User assumes all liability for admin operations.
+                Please use responsibly. The user assumes all liability for administrative actions and compliance with software licenses.
               </span>
             </div>
           </div>
@@ -201,13 +201,22 @@ function App() {
                 </>
               ) : (
                 <>
-                  <span className="text-muted-foreground/70">netSwitch v0.1.0</span>
+                  <div className="flex items-center gap-2">
+                    <span className="text-muted-foreground/50">v0.1.0</span>
+                    <span className="text-border">|</span>
+                    <a
+                      href="mailto:gungozb@gmail.com"
+                      className="hover:text-foreground transition-colors hover:underline decoration-border/50 underline-offset-2"
+                    >
+                      gungozb@gmail.com
+                    </a>
+                  </div>
                   <button
                     onClick={openGitHub}
                     className="flex items-center gap-1 text-muted-foreground hover:text-foreground transition-colors"
                   >
                     <Github className="h-3 w-3" />
-                    <span>github.com/bugragungoz/netswitch</span>
+                    <span className="hidden sm:inline">github.com/bugragungoz/netswitch</span>
                     <ExternalLink className="h-2.5 w-2.5" />
                   </button>
                 </>

@@ -46,12 +46,14 @@ import {
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
-    XAxis,
-    YAxis,
-    ResponsiveContainer,
     Tooltip as RechartsTooltip,
     Area,
     AreaChart,
+    BarChart,
+    Bar,
+    XAxis,
+    YAxis,
+    ResponsiveContainer,
 } from "recharts";
 
 interface NetworkProcess {
@@ -473,95 +475,130 @@ export function NetworkMonitorPage() {
                 </CardContent>
             </Card>
 
-            {/* Processes with Network Activity */}
-            <Card>
-                <CardHeader className="pb-3">
-                    <div className="flex items-center justify-between">
-                        <div>
-                            <CardTitle className="text-sm">Network Activity by Process</CardTitle>
-                            <CardDescription className="text-xs">
-                                Processes with active network connections
-                            </CardDescription>
+            {/* Process Connections Graph */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <Card className="md:col-span-1">
+                    <CardHeader className="pb-2">
+                        <CardTitle className="text-sm">Top Processes by Connections</CardTitle>
+                        <CardDescription className="text-xs">
+                            Active TCP/UDP sockets
+                        </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                        <div className="h-[250px] w-full">
+                            {sortedProcesses.length > 0 ? (
+                                <ResponsiveContainer width="100%" height="100%">
+                                    <BarChart
+                                        layout="vertical"
+                                        data={sortedProcesses.slice(0, 10)}
+                                        margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
+                                    >
+                                        <XAxis type="number" hide />
+                                        <YAxis
+                                            dataKey="name"
+                                            type="category"
+                                            width={100}
+                                            tick={{ fontSize: 10 }}
+                                            tickFormatter={(val) => val.length > 15 ? val.substring(0, 15) + '...' : val}
+                                        />
+                                        <RechartsTooltip
+                                            contentStyle={{
+                                                backgroundColor: 'hsl(var(--card))',
+                                                border: '1px solid hsl(var(--border))',
+                                                borderRadius: '8px',
+                                                fontSize: '11px'
+                                            }}
+                                            labelStyle={{ color: 'hsl(var(--foreground))' }}
+                                            cursor={{ fill: 'hsl(var(--muted)/0.4)' }}
+                                            formatter={(value: number) => [value, 'Connections']}
+                                        />
+                                        <Bar dataKey="tcp_connections" stackId="a" fill="hsl(217, 91%, 60%)" radius={[0, 4, 4, 0]} name="TCP" />
+                                        <Bar dataKey="udp_connections" stackId="a" fill="hsl(142, 71%, 45%)" radius={[0, 4, 4, 0]} name="UDP" />
+                                    </BarChart>
+                                </ResponsiveContainer>
+                            ) : (
+                                <div className="flex h-full items-center justify-center text-xs text-muted-foreground">
+                                    No active processes
+                                </div>
+                            )}
                         </div>
-                        <div className="flex gap-1">
-                            <Button
-                                variant={sortBy === "connections" ? "default" : "ghost"}
-                                size="sm"
-                                className="h-6 text-xs px-2"
-                                onClick={() => setSortBy("connections")}
-                            >
-                                Connections
-                            </Button>
-                            <Button
-                                variant={sortBy === "sent" ? "default" : "ghost"}
-                                size="sm"
-                                className="h-6 text-xs px-2"
-                                onClick={() => setSortBy("sent")}
-                            >
-                                Sent
-                            </Button>
-                            <Button
-                                variant={sortBy === "received" ? "default" : "ghost"}
-                                size="sm"
-                                className="h-6 text-xs px-2"
-                                onClick={() => setSortBy("received")}
-                            >
-                                Received
-                            </Button>
+                    </CardContent>
+                </Card>
+
+                {/* Process List Table */}
+                <Card className="md:col-span-2">
+                    <CardHeader className="pb-3">
+                        <div className="flex items-center justify-between">
+                            <div>
+                                <CardTitle className="text-sm">Network Activity by Process</CardTitle>
+                                <CardDescription className="text-xs">
+                                    Processes with active network connections
+                                </CardDescription>
+                            </div>
+                            <div className="flex gap-1">
+                                <Button
+                                    variant={sortBy === "connections" ? "default" : "ghost"}
+                                    size="sm"
+                                    className="h-6 text-xs px-2"
+                                    onClick={() => setSortBy("connections")}
+                                >
+                                    Connections
+                                </Button>
+                            </div>
                         </div>
-                    </div>
-                </CardHeader>
-                <CardContent className="p-0">
-                    {sortedProcesses.length > 0 ? (
-                        <ScrollArea className="h-72">
-                            <Table>
-                                <TableHeader>
-                                    <TableRow>
-                                        <TableHead className="text-xs">Process</TableHead>
-                                        <TableHead className="text-xs text-center">PID</TableHead>
-                                        <TableHead className="text-xs text-center">TCP</TableHead>
-                                        <TableHead className="text-xs text-center">UDP</TableHead>
-                                        <TableHead className="text-xs text-right">Sent</TableHead>
-                                        <TableHead className="text-xs text-right">Received</TableHead>
-                                    </TableRow>
-                                </TableHeader>
-                                <TableBody>
-                                    {sortedProcesses.map((proc, index) => (
-                                        <TableRow key={index} className="hover:bg-muted/50">
-                                            <TableCell className="text-xs font-medium py-2">
-                                                {proc.name}
-                                            </TableCell>
-                                            <TableCell className="text-xs text-center text-muted-foreground py-2">
-                                                {proc.pid}
-                                            </TableCell>
-                                            <TableCell className="text-xs text-center py-2">
-                                                <Badge variant="secondary" className="text-[10px]">
-                                                    {proc.tcp_connections}
-                                                </Badge>
-                                            </TableCell>
-                                            <TableCell className="text-xs text-center py-2">
-                                                <Badge variant="outline" className="text-[10px]">
-                                                    {proc.udp_connections}
-                                                </Badge>
-                                            </TableCell>
-                                            <TableCell className="text-xs text-right text-purple-500 py-2">
-                                                {formatBytes(proc.bytes_sent)}
-                                            </TableCell>
-                                            <TableCell className="text-xs text-right text-orange-500 py-2">
-                                                {formatBytes(proc.bytes_received)}
-                                            </TableCell>
+                    </CardHeader>
+                    <CardContent className="p-0">
+                        {sortedProcesses.length > 0 ? (
+                            <ScrollArea className="h-[280px]">
+                                <Table>
+                                    <TableHeader>
+                                        <TableRow>
+                                            <TableHead className="text-xs">Process</TableHead>
+                                            <TableHead className="text-xs text-center">PID</TableHead>
+                                            <TableHead className="text-xs text-center">TCP</TableHead>
+                                            <TableHead className="text-xs text-center">UDP</TableHead>
+                                            <TableHead className="text-xs text-right text-muted-foreground/50">Sent (N/A)</TableHead>
+                                            <TableHead className="text-xs text-right text-muted-foreground/50">Recv (N/A)</TableHead>
                                         </TableRow>
-                                    ))}
-                                </TableBody>
-                            </Table>
-                        </ScrollArea>
-                    ) : (
-                        <div className="flex h-32 items-center justify-center text-xs text-muted-foreground">
-                            {isLoading ? "Loading processes..." : "No network activity detected"}
-                        </div>
-                    )}
-                </CardContent>
-            </Card>
+                                    </TableHeader>
+                                    <TableBody>
+                                        {sortedProcesses.map((proc, index) => (
+                                            <TableRow key={index} className="hover:bg-muted/50">
+                                                <TableCell className="text-xs font-medium py-2">
+                                                    {proc.name}
+                                                </TableCell>
+                                                <TableCell className="text-xs text-center text-muted-foreground py-2">
+                                                    {proc.pid}
+                                                </TableCell>
+                                                <TableCell className="text-xs text-center py-2">
+                                                    <Badge variant="secondary" className="text-[10px] bg-blue-500/10 text-blue-600 hover:bg-blue-500/20">
+                                                        {proc.tcp_connections}
+                                                    </Badge>
+                                                </TableCell>
+                                                <TableCell className="text-xs text-center py-2">
+                                                    <Badge variant="outline" className="text-[10px] text-green-600 border-green-200">
+                                                        {proc.udp_connections}
+                                                    </Badge>
+                                                </TableCell>
+                                                <TableCell className="text-xs text-right text-muted-foreground/30 py-2 font-mono">
+                                                    -
+                                                </TableCell>
+                                                <TableCell className="text-xs text-right text-muted-foreground/30 py-2 font-mono">
+                                                    -
+                                                </TableCell>
+                                            </TableRow>
+                                        ))}
+                                    </TableBody>
+                                </Table>
+                            </ScrollArea>
+                        ) : (
+                            <div className="flex h-32 items-center justify-center text-xs text-muted-foreground">
+                                {isLoading ? "Loading processes..." : "No network activity detected"}
+                            </div>
+                        )}
+                    </CardContent>
+                </Card>
+            </div>
         </div>
     );
 }
