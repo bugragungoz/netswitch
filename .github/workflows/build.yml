@@ -97,12 +97,17 @@ jobs:
         run: |
           version=$(node -p "require('./package.json').version")
           tag="v$version"
-          if gh release view "$tag" --repo "$GITHUB_REPOSITORY" > /dev/null 2>&1; then
+          # A draft is what a failed run leaves behind: replace it.
+          draft=$(gh release view "$tag" --repo "$GITHUB_REPOSITORY" --json isDraft -q .isDraft 2> /dev/null || echo missing)
+          if [ "$draft" = "false" ]; then
             echo "$tag is already released."
             exit 0
+          elif [ "$draft" = "true" ]; then
+            gh release delete "$tag" --yes --repo "$GITHUB_REPOSITORY"
           fi
           awk -v v="$version" '
             /^## / { if (found) exit; if (index($0, "## " v) == 1) { found = 1; next } }
             found { print }
           ' CHANGELOG.md > notes.md
-          gh release create "$tag" installers/* --target "$GITHUB_SHA" --title "netSwitch $tag" --notes-file notes.md --repo "$GITHUB_REPOSITORY"
+          # The artifact keeps the bundle folders: installers/nsis/*.exe and installers/msi/*.msi.
+          gh release create "$tag" installers/*/* --target "$GITHUB_SHA" --title "netSwitch $tag" --notes-file notes.md --repo "$GITHUB_REPOSITORY"
