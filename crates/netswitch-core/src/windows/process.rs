@@ -43,8 +43,8 @@ pub fn file_description(path: &str) -> Option<String> {
         if VerQueryValueW(data.as_ptr().cast(), PCWSTR(translation.as_ptr()), &mut ptr, &mut len).as_bool() && len >= 4
         {
             let pairs = std::slice::from_raw_parts(ptr as *const u16, (len / 2) as usize);
-            for pair in pairs.chunks_exact(2) {
-                languages.push(format!("{:04x}{:04x}", pair[0], pair[1]));
+            for [language, code_page] in pairs.as_chunks::<2>().0 {
+                languages.push(format!("{language:04x}{code_page:04x}"));
             }
         }
         languages.push("040904b0".to_string());
