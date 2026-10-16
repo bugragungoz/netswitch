@@ -28,6 +28,9 @@ async function open({ width = 1280, height = 800, locale = 'en-US', colorScheme 
   page.on('console', (m) => {
     if (m.type() === 'error' || m.type() === 'warning') problems.push(m.text());
   });
+  page.on('response', (r) => {
+    if (r.status() >= 400) problems.push(`${r.status()} ${r.url()}`);
+  });
   await page.goto(`${server.url}?quiet`);
   await page.getByRole('heading', { name: 'Overview' }).or(page.getByRole('heading', { name: 'Genel bakış' })).waitFor();
   return { page, context, problems };
