@@ -1,0 +1,19 @@
+/* Tokens netSwitch adds to Bugra (added). The only other place a color value may appear is
+   tokens.css. Listed in docs/design/ADDED.md. */
+
+:root,
+:root[data-theme='dark'] {
+  /* Chart series: download wears the accent; upload is a quiet neutral (validated with the dataviz
+     palette check against the dark surface: CVD separation 11.3, normal vision 20.4, contrast >= 3:1). */
+  --series-down: var(--accent-ink);
+  --series-up: #a29b91;
+  --series-down-fill: rgba(61, 220, 132, 0.12);
+  --series-up-fill: rgba(162, 155, 145, 0.08);
+}
+
+:root[data-theme='light'] {
+  /* Against the white surface: CVD separation 12.5, normal vision 18.7, contrast >= 3:1. */
+  --series-up: #8a8278;
+  --series-down-fill: rgba(8, 107, 55, 0.1);
+  --series-up-fill: rgba(138, 130, 120, 0.1);
+}

@@ -1,32 +1,18 @@
-# Logs
-logs
+# Dependencies and builds
+node_modules/
+dist/
+target/
+src-tauri/gen/schemas/
+
+# Screenshots made by `npm run shots` land in docs/images; test output does not stay
+tests/ui/output/
+
+# Logs and editor files
 *.log
-npm-debug.log*
-
-# Dependencies
-node_modules
-
-# Build
-dist
-dist-ssr
-
-# Rust/Tauri
-src-tauri/target
-
-# IDE
 .vscode/*
 !.vscode/extensions.json
-.idea
-*.suo
-*.ntvs*
-*.njsproj
-*.sln
-*.sw?
+.idea/
 
 # OS
 .DS_Store
 Thumbs.db
-
-# Local env files
-.env.local
-.env.*.local

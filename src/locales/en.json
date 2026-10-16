@@ -1,0 +1,218 @@
+{
+  "common": {
+    "close": "Close",
+    "cancel": "Cancel",
+    "copy": "Copy",
+    "copied": "Copied",
+    "download": "Download",
+    "upload": "Upload",
+    "search": "Search",
+    "clearSearch": "Clear search"
+  },
+  "nav": {
+    "label": "Pages",
+    "overview": "Overview",
+    "apps": "Apps",
+    "connections": "Connections",
+    "blocked": "Blocked",
+    "settings": "Settings"
+  },
+  "time": {
+    "never": "never",
+    "now": "now",
+    "secondsAgo": {
+      "one": "{count} s ago",
+      "other": "{count} s ago"
+    },
+    "minutesAgo": {
+      "one": "{count} min ago",
+      "other": "{count} min ago"
+    },
+    "hoursAgo": {
+      "one": "{count} h ago",
+      "other": "{count} h ago"
+    }
+  },
+  "status": {
+    "perApp": "Measuring per app",
+    "totalsOnly": "Totals only",
+    "totalsOnlyHint": "Traffic per app is not measured: {reason}",
+    "notWindows": "Runs on Windows",
+    "problems": {
+      "one": "{count} problem",
+      "other": "{count} problems"
+    },
+    "noConnection": "Error: the monitor does not answer. {detail}",
+    "demo": "Demo data",
+    "demoHint": "This page runs in a browser, so it shows a made-up computer.",
+    "version": "netSwitch {version}",
+    "github": "netSwitch on GitHub"
+  },
+  "overview": {
+    "title": "Overview",
+    "subtitle": "All traffic of this PC, as it happens.",
+    "downloadNow": "Download",
+    "uploadNow": "Upload",
+    "totalSince": "{amount} since netSwitch started",
+    "appsOnline": "Apps online",
+    "connections": "Open connections",
+    "chartTitle": "The last five minutes",
+    "chartLabel": "Download and upload speed of this PC over the last five minutes",
+    "peak": "Peak {value}",
+    "secondsAgo": "{count} s ago",
+    "minutesAgo": "{count} min ago",
+    "now": "now",
+    "busiestApps": "Busiest apps",
+    "busiestHosts": "Busiest hosts",
+    "seeAll": "See all",
+    "quiet": "Nothing is using the network right now.",
+    "unnamedHost": "No name",
+    "perAppTitle": "Traffic per app needs administrator rights",
+    "perAppBody": "netSwitch sees the totals of your network adapters and the open connections, but not how much each app sends and receives. Start netSwitch as administrator.",
+    "notWindowsTitle": "netSwitch measures on Windows",
+    "notWindowsBody": "It reads traffic from Windows itself and changes Windows Firewall rules, so on this system there is nothing to show."
+  },
+  "apps": {
+    "title": "Apps",
+    "subtitle": "Every app that used the network since netSwitch started. Switch one off to block its internet.",
+    "searchPlaceholder": "Search apps",
+    "filterLabel": "Show",
+    "filterOnline": "Online now",
+    "filterAll": "All",
+    "filterBlocked": "Blocked",
+    "count": {
+      "one": "{count} app",
+      "other": "{count} apps"
+    },
+    "colApp": "App",
+    "colDownload": "Download",
+    "colUpload": "Upload",
+    "colTotal": "Total",
+    "colConnections": "Connections",
+    "colInternet": "Internet",
+    "switchLabel": "Internet access for {name}",
+    "allowed": "On",
+    "blockedState": "Off",
+    "protected": "Part of Windows",
+    "protectedHint": "netSwitch does not block programs in the Windows folder: one of them, such as svchost.exe, can carry the whole PC's traffic.",
+    "noPath": "Windows does not say which program this is, so it cannot be blocked.",
+    "noProgram": "No program",
+    "empty": "No app has used the network yet.",
+    "emptySearch": "No app matches \"{query}\".",
+    "emptyBlocked": "No app is blocked.",
+    "emptyOnline": "No app is sending or receiving right now.",
+    "program": "Program",
+    "processes": "Processes",
+    "firstSeen": "First seen",
+    "lastActive": "Last active",
+    "listening": "Listening sockets",
+    "talksTo": "Talks to",
+    "noHosts": "No connections right now.",
+    "lastMinute": "The last minute",
+    "reveal": "Show in Explorer",
+    "copyPath": "Copy path",
+    "showConnections": "Show connections",
+    "blockTitle": "Block {name}?",
+    "blockBody": "netSwitch adds two Windows Firewall rules, inbound and outbound, for {path}. The app keeps running, without internet. Switch it on again here or on the Blocked page.",
+    "blockConfirm": "Block",
+    "blocked": "{name} is blocked.",
+    "unblocked": "{name} has its internet back."
+  },
+  "connections": {
+    "title": "Connections",
+    "subtitle": "Who each app talks to. Names come from the app's own DNS lookups, else from reverse DNS.",
+    "searchPlaceholder": "Search app, host, address or port",
+    "tcp": "TCP",
+    "udp": "UDP",
+    "hideLocal": "Hide local network",
+    "count": {
+      "one": "{count} connection",
+      "other": "{count} connections"
+    },
+    "colApp": "App",
+    "colRemote": "Remote",
+    "colPort": "Port",
+    "colProtocol": "Protocol",
+    "colState": "State",
+    "colDownload": "Download",
+    "colUpload": "Upload",
+    "colTotal": "Total",
+    "colLastActive": "Last active",
+    "localNetwork": "Local network",
+    "empty": "No connections.",
+    "emptySearch": "No connection matches \"{query}\".",
+    "state": {
+      "open": "Open",
+      "connecting": "Connecting",
+      "closing": "Closing",
+      "closed": "Closed",
+      "active": "Active",
+      "idle": "Idle"
+    }
+  },
+  "blocked": {
+    "title": "Blocked apps",
+    "subtitle": "netSwitch, AppIntBlocker and its window share these Windows Firewall rules. Unblocking here gives the app its internet back everywhere.",
+    "rules": {
+      "one": "{count} rule",
+      "other": "{count} rules"
+    },
+    "incomplete": "One direction only",
+    "incompleteHint": "A program here has only an inbound or only an outbound rule.",
+    "unblock": "Unblock",
+    "unblockApp": "Unblock {name}",
+    "unblockAll": "Unblock all",
+    "backup": "Back up firewall",
+    "openFirewall": "Open Windows Firewall",
+    "unblockTitle": "Unblock {name}?",
+    "unblockBody": "netSwitch removes its {count} firewall rules, and {name} gets its internet access back.",
+    "unblockAllTitle": "Unblock all apps?",
+    "unblockAllBody": "netSwitch removes every rule named \"AppBlocker Rule\", {count} in all, also the ones AppIntBlocker added.",
+    "unblocked": {
+      "one": "Removed {count} rule.",
+      "other": "Removed {count} rules."
+    },
+    "backupDone": "Firewall saved to {path}",
+    "restoreHint": "To restore a backup, run netsh advfirewall import with its path as administrator. It replaces all current rules.",
+    "empty": "No app is blocked.",
+    "emptyHint": "Switch an app off on the Apps page and it shows up here."
+  },
+  "settings": {
+    "title": "Settings",
+    "appearance": "Appearance",
+    "theme": "Theme",
+    "themeSystem": "Same as Windows",
+    "themeDark": "Dark",
+    "themeLight": "Light",
+    "language": "Language",
+    "languageSystem": "Same as Windows",
+    "units": "Speeds",
+    "unitBytes": "Bytes (MB/s)",
+    "unitBits": "Bits (Mbit/s)",
+    "notifications": "Notifications",
+    "notifyNewApps": "Tell me when an app goes online for the first time",
+    "notifyNewAppsHint": "Once per app each time netSwitch runs.",
+    "safety": "Safety",
+    "dailyBackup": "Back up the firewall before the first change of each day",
+    "dailyBackupHint": "Saved in Documents\\netSwitch\\Backups.",
+    "about": "About",
+    "aboutBody": "netSwitch shows which apps use your network and blocks the ones you switch off with Windows Firewall rules.",
+    "version": "Version {version}",
+    "source": "Source code on GitHub",
+    "license": "MIT License"
+  },
+  "notify": {
+    "title": "{name} went online",
+    "body": "Its first connection to the internet since netSwitch started."
+  },
+  "errors": {
+    "firewall_failed": "Error: Windows Firewall did not accept the change. {detail}",
+    "backup_failed": "Error: the firewall backup failed. {detail}",
+    "protected_program": "Error: {detail} is part of Windows, and blocking it could cut off the whole PC.",
+    "unsupported": "Error: netSwitch changes the firewall on Windows only.",
+    "not_found": "Error: {detail} was not found.",
+    "no_documents_folder": "Error: the Documents folder could not be found.",
+    "settings_not_saved": "Error: the settings were not saved. {detail}",
+    "internal": "Error: {detail}"
+  }
+}

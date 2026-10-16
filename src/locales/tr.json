@@ -1,0 +1,218 @@
+{
+  "common": {
+    "close": "Kapat",
+    "cancel": "Vazgeç",
+    "copy": "Kopyala",
+    "copied": "Kopyalandı",
+    "download": "İndirme",
+    "upload": "Yükleme",
+    "search": "Ara",
+    "clearSearch": "Aramayı temizle"
+  },
+  "nav": {
+    "label": "Sayfalar",
+    "overview": "Genel bakış",
+    "apps": "Uygulamalar",
+    "connections": "Bağlantılar",
+    "blocked": "Engellenenler",
+    "settings": "Ayarlar"
+  },
+  "time": {
+    "never": "hiç",
+    "now": "şimdi",
+    "secondsAgo": {
+      "one": "{count} sn önce",
+      "other": "{count} sn önce"
+    },
+    "minutesAgo": {
+      "one": "{count} dk önce",
+      "other": "{count} dk önce"
+    },
+    "hoursAgo": {
+      "one": "{count} sa önce",
+      "other": "{count} sa önce"
+    }
+  },
+  "status": {
+    "perApp": "Uygulama başına ölçülüyor",
+    "totalsOnly": "Yalnızca toplamlar",
+    "totalsOnlyHint": "Uygulama başına trafik ölçülmüyor: {reason}",
+    "notWindows": "Windows'ta çalışır",
+    "problems": {
+      "one": "{count} sorun",
+      "other": "{count} sorun"
+    },
+    "noConnection": "Hata: izleyici yanıt vermiyor. {detail}",
+    "demo": "Örnek veri",
+    "demoHint": "Bu sayfa tarayıcıda çalışıyor, bu yüzden uydurma bir bilgisayar gösteriyor.",
+    "version": "netSwitch {version}",
+    "github": "GitHub'da netSwitch"
+  },
+  "overview": {
+    "title": "Genel bakış",
+    "subtitle": "Bu bilgisayarın tüm trafiği, anlık olarak.",
+    "downloadNow": "İndirme",
+    "uploadNow": "Yükleme",
+    "totalSince": "netSwitch açıldığından beri {amount}",
+    "appsOnline": "Çevrimiçi uygulama",
+    "connections": "Açık bağlantı",
+    "chartTitle": "Son beş dakika",
+    "chartLabel": "Bu bilgisayarın son beş dakikadaki indirme ve yükleme hızı",
+    "peak": "En yüksek {value}",
+    "secondsAgo": "{count} sn önce",
+    "minutesAgo": "{count} dk önce",
+    "now": "şimdi",
+    "busiestApps": "En yoğun uygulamalar",
+    "busiestHosts": "En yoğun sunucular",
+    "seeAll": "Tümünü gör",
+    "quiet": "Şu anda ağı kullanan bir şey yok.",
+    "unnamedHost": "Adı yok",
+    "perAppTitle": "Uygulama başına trafik için yönetici izni gerekiyor",
+    "perAppBody": "netSwitch ağ bağdaştırıcılarının toplamlarını ve açık bağlantıları görüyor, ama her uygulamanın ne kadar gönderip aldığını göremiyor. netSwitch'i yönetici olarak başlatın.",
+    "notWindowsTitle": "netSwitch Windows'ta ölçer",
+    "notWindowsBody": "Trafiği doğrudan Windows'tan okur ve Windows Güvenlik Duvarı kurallarını değiştirir; bu sistemde gösterecek bir şey yok."
+  },
+  "apps": {
+    "title": "Uygulamalar",
+    "subtitle": "netSwitch açıldığından beri ağı kullanan her uygulama. İnternetini kesmek için kapatın.",
+    "searchPlaceholder": "Uygulama ara",
+    "filterLabel": "Göster",
+    "filterOnline": "Şu an çevrimiçi",
+    "filterAll": "Tümü",
+    "filterBlocked": "Engelli",
+    "count": {
+      "one": "{count} uygulama",
+      "other": "{count} uygulama"
+    },
+    "colApp": "Uygulama",
+    "colDownload": "İndirme",
+    "colUpload": "Yükleme",
+    "colTotal": "Toplam",
+    "colConnections": "Bağlantı",
+    "colInternet": "İnternet",
+    "switchLabel": "{name} için internet erişimi",
+    "allowed": "Açık",
+    "blockedState": "Kapalı",
+    "protected": "Windows'un parçası",
+    "protectedHint": "netSwitch Windows klasöründeki programları engellemez: svchost.exe gibi biri tüm bilgisayarın trafiğini taşıyabilir.",
+    "noPath": "Windows bunun hangi program olduğunu söylemiyor, bu yüzden engellenemez.",
+    "noProgram": "Program yok",
+    "empty": "Henüz ağı kullanan bir uygulama yok.",
+    "emptySearch": "\"{query}\" ile eşleşen uygulama yok.",
+    "emptyBlocked": "Engellenen uygulama yok.",
+    "emptyOnline": "Şu anda veri gönderen ya da alan bir uygulama yok.",
+    "program": "Program",
+    "processes": "İşlemler",
+    "firstSeen": "İlk görülme",
+    "lastActive": "Son etkinlik",
+    "listening": "Dinleyen soketler",
+    "talksTo": "Konuştuğu sunucular",
+    "noHosts": "Şu anda bağlantı yok.",
+    "lastMinute": "Son bir dakika",
+    "reveal": "Gezgin'de göster",
+    "copyPath": "Yolu kopyala",
+    "showConnections": "Bağlantıları göster",
+    "blockTitle": "{name} engellensin mi?",
+    "blockBody": "netSwitch {path} için gelen ve giden yönde iki Windows Güvenlik Duvarı kuralı ekler. Uygulama çalışmaya devam eder, ama internetsiz. Buradan ya da Engellenenler sayfasından yeniden açabilirsiniz.",
+    "blockConfirm": "Engelle",
+    "blocked": "{name} engellendi.",
+    "unblocked": "{name} internetine kavuştu."
+  },
+  "connections": {
+    "title": "Bağlantılar",
+    "subtitle": "Her uygulamanın kiminle konuştuğu. Adlar uygulamanın kendi DNS sorgularından, yoksa ters DNS'ten gelir.",
+    "searchPlaceholder": "Uygulama, sunucu, adres ya da port ara",
+    "tcp": "TCP",
+    "udp": "UDP",
+    "hideLocal": "Yerel ağı gizle",
+    "count": {
+      "one": "{count} bağlantı",
+      "other": "{count} bağlantı"
+    },
+    "colApp": "Uygulama",
+    "colRemote": "Karşı taraf",
+    "colPort": "Port",
+    "colProtocol": "Protokol",
+    "colState": "Durum",
+    "colDownload": "İndirme",
+    "colUpload": "Yükleme",
+    "colTotal": "Toplam",
+    "colLastActive": "Son etkinlik",
+    "localNetwork": "Yerel ağ",
+    "empty": "Bağlantı yok.",
+    "emptySearch": "\"{query}\" ile eşleşen bağlantı yok.",
+    "state": {
+      "open": "Açık",
+      "connecting": "Bağlanıyor",
+      "closing": "Kapanıyor",
+      "closed": "Kapalı",
+      "active": "Etkin",
+      "idle": "Boşta"
+    }
+  },
+  "blocked": {
+    "title": "Engellenen uygulamalar",
+    "subtitle": "netSwitch, AppIntBlocker ve onun penceresi bu Windows Güvenlik Duvarı kurallarını ortak kullanır. Buradan engeli kaldırmak uygulamaya her yerde internetini geri verir.",
+    "rules": {
+      "one": "{count} kural",
+      "other": "{count} kural"
+    },
+    "incomplete": "Yalnızca bir yön",
+    "incompleteHint": "Buradaki bir programın yalnızca gelen ya da yalnızca giden kuralı var.",
+    "unblock": "Engeli kaldır",
+    "unblockApp": "{name} engelini kaldır",
+    "unblockAll": "Tüm engelleri kaldır",
+    "backup": "Güvenlik duvarını yedekle",
+    "openFirewall": "Windows Güvenlik Duvarı'nı aç",
+    "unblockTitle": "{name} engeli kaldırılsın mı?",
+    "unblockBody": "netSwitch {count} güvenlik duvarı kuralını siler ve {name} internet erişimine kavuşur.",
+    "unblockAllTitle": "Tüm uygulamaların engeli kaldırılsın mı?",
+    "unblockAllBody": "netSwitch \"AppBlocker Rule\" adlı tüm kuralları, toplam {count} kuralı siler; AppIntBlocker'ın eklediklerini de.",
+    "unblocked": {
+      "one": "{count} kural silindi.",
+      "other": "{count} kural silindi."
+    },
+    "backupDone": "Güvenlik duvarı şuraya kaydedildi: {path}",
+    "restoreHint": "Bir yedeği geri yüklemek için yönetici olarak netsh advfirewall import komutunu yedeğin yoluyla çalıştırın. Mevcut tüm kuralların yerini alır.",
+    "empty": "Engellenen uygulama yok.",
+    "emptyHint": "Uygulamalar sayfasında bir uygulamayı kapatın, burada görünür."
+  },
+  "settings": {
+    "title": "Ayarlar",
+    "appearance": "Görünüm",
+    "theme": "Tema",
+    "themeSystem": "Windows ile aynı",
+    "themeDark": "Koyu",
+    "themeLight": "Açık",
+    "language": "Dil",
+    "languageSystem": "Windows ile aynı",
+    "units": "Hızlar",
+    "unitBytes": "Bayt (MB/s)",
+    "unitBits": "Bit (Mbit/s)",
+    "notifications": "Bildirimler",
+    "notifyNewApps": "Bir uygulama ilk kez çevrimiçi olduğunda haber ver",
+    "notifyNewAppsHint": "netSwitch her açıldığında, uygulama başına bir kez.",
+    "safety": "Güvenlik",
+    "dailyBackup": "Her günün ilk değişikliğinden önce güvenlik duvarını yedekle",
+    "dailyBackupHint": "Belgeler\\netSwitch\\Backups klasörüne kaydedilir.",
+    "about": "Hakkında",
+    "aboutBody": "netSwitch ağınızı hangi uygulamaların kullandığını gösterir ve kapattıklarınızı Windows Güvenlik Duvarı kurallarıyla engeller.",
+    "version": "Sürüm {version}",
+    "source": "GitHub'da kaynak kodu",
+    "license": "MIT Lisansı"
+  },
+  "notify": {
+    "title": "{name} çevrimiçi oldu",
+    "body": "netSwitch açıldığından beri internete ilk bağlantısı."
+  },
+  "errors": {
+    "firewall_failed": "Hata: Windows Güvenlik Duvarı değişikliği kabul etmedi. {detail}",
+    "backup_failed": "Hata: güvenlik duvarı yedeklenemedi. {detail}",
+    "protected_program": "Hata: {detail} Windows'un parçası; engellemek tüm bilgisayarın bağlantısını kesebilir.",
+    "unsupported": "Hata: netSwitch güvenlik duvarını yalnızca Windows'ta değiştirir.",
+    "not_found": "Hata: {detail} bulunamadı.",
+    "no_documents_folder": "Hata: Belgeler klasörü bulunamadı.",
+    "settings_not_saved": "Hata: ayarlar kaydedilmedi. {detail}",
+    "internal": "Hata: {detail}"
+  }
+}
