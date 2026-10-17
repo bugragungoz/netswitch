@@ -22,6 +22,7 @@
     "test": "vitest run",
     "test:ui": "vite build && node tests/ui/run.mjs",
     "shots": "vite build && node tests/ui/screenshots.mjs",
+    "icons": "tauri icon docs/design/icon.svg -o src-tauri/icons",
     "verify": "npm run check:versions && npm run check:locales && npm run lint && npm run typecheck && npm test"
   },
   "dependencies": {

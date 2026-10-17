@@ -42,3 +42,10 @@ alone.
 Bugra-style line icons on a 24 px grid, 1.6 px stroke with round caps. netSwitch adds `activity`,
 `apps`, `link`, `shield`, `shieldOff` and `globe`, the switch mark beside the name in the
 sidebar (`App.tsx`), and the GitHub mark from Primer Octicons (MIT) for the link in the status bar.
+
+## App icon (`docs/design/icon.svg`)
+
+The sidebar's switch, with a traffic pulse in its track: what netSwitch watches and what it turns
+off. It is drawn like the other icons (24 px grid, 1.6 px stroke, round caps) in the accent on
+Bugra's darkest surface, with rounded corners, the same frame as the owner's other apps.
+`npm run icons` makes the Windows icons in `src-tauri/icons` from it.

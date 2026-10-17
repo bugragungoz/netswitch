@@ -26,8 +26,9 @@ const NAV: { page: Page; icon: string; count?: () => number }[] = [
 /** The wordmark's mark: a switch, on, in the accent ink. */
 function Mark() {
   return (
-    <svg class="wordmark-mark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true">
+    <svg class="wordmark-mark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
       <rect x="2.5" y="6.5" width="19" height="11" rx="5.5" />
+      <path d="M5.2 12h1.1l1.3-2.4 1.8 4.8 1.3-2.4h.8" />
       <circle cx="16" cy="12" r="3.2" fill="currentColor" stroke="none" />
     </svg>
   );

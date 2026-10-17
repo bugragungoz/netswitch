@@ -1,9 +1,6 @@
 # netSwitch
 
-<picture>
-  <source media="(prefers-color-scheme: dark)" srcset="src-tauri/icons/logo-white.png">
-  <img src="src-tauri/icons/128x128.png" align="left" width="96" height="96" alt="">
-</picture>
+<img src="src-tauri/icons/128x128.png" align="left" width="96" height="96" alt="">
 
 See which apps use your network, how much and with whom, and switch any of them off.
 
@@ -93,6 +90,7 @@ npm run verify         # versions, locales, lint, colors, types and unit tests
 cargo test --workspace # the Rust core and shell
 npm run test:ui        # the built interface in Chromium
 npm run shots          # the screenshots above
+npm run icons          # the Windows icons from docs/design/icon.svg
 npm run build          # the installers (on Windows)
 ```
 
