@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.2.1
+
+- netSwitch has its own icon: the sidebar's switch with a traffic pulse in its track, in the accent
+  on a dark tile. The README shows it too.
+
 ## 0.2.0
 
 netSwitch is rebuilt as a network monitor with an internet switch for each app. Firewall rules

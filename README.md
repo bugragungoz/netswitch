@@ -9,7 +9,7 @@ each one talks to, and blocks an app's internet with one switch, using Windows F
 
 <br clear="left">
 
-> **Not fully tested yet.** Version 0.2.0 builds, and its tests pass, on GitHub's Windows runners,
+> **Not fully tested yet.** Version 0.2.1 builds, and its tests pass, on GitHub's Windows runners,
 > including the ones that read real traffic and add real firewall rules there. It has not yet been
 > used day to day on a real PC. Tell me in an issue if something looks wrong.
 
