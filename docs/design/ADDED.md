@@ -27,6 +27,7 @@ alone.
 |---|---|---|
 | Button `quiet` and `danger` | `components/Button.tsx` | Quiet has no outline until hovered; danger uses the `warn` outline and text. |
 | Badge | `components.css` | A small outlined pill for counts and states ("2 rules", "Local network"). |
+| Chip check | `components.css` | A chosen filter chip shows a check drawn by CSS with empty alternative text, so a screen reader hears the chip's name and "pressed", not "check mark". |
 | Empty state | `components/Misc.tsx` | Icon, sentence and optional actions, centered in the view. |
 | Segmented control | `pages/Settings.tsx`, `.tabs` | A pill group with `role="radiogroup"`; the chosen option wears the accent tint. |
 | Snackbar stack | `components/Snackbars.tsx` | Bugra's snackbar, stacked at the bottom left with a close button. |
