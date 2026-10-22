@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.2.2
+
+- A rule name longer than 220 characters ends in a short hash of the whole name, as AppIntBlocker
+  and AppIntBlockerGUI now write it, so two programs whose names agree past the cut get their own
+  rules.
+- Screen readers no longer read "check mark" as part of a chosen filter chip's name.
+
 ## 0.2.1
 
 - netSwitch has its own icon: the sidebar's switch with a traffic pulse in its track, in the accent

@@ -2139,7 +2139,7 @@ dependencies = [
 
 [[package]]
 name = "netswitch"
-version = "0.2.1"
+version = "0.2.2"
 dependencies = [
  "chrono",
  "netswitch-core",
@@ -2154,7 +2154,7 @@ dependencies = [
 
 [[package]]
 name = "netswitch-core"
-version = "0.2.1"
+version = "0.2.2"
 dependencies = [
  "ferrisetw",
  "serde",
