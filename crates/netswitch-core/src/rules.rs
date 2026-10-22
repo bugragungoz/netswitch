@@ -2,10 +2,14 @@
 //! so netSwitch, the script and the window see and remove each other's rules:
 //! `AppBlocker Rule -{application} - {file} (Inbound|Outbound)`.
 
+use sha2::{Digest, Sha256};
+
 pub const PREFIX: &str = "AppBlocker Rule -";
 
-// AppIntBlocker cuts the part before the direction at 220 characters and appends "...".
+// A part before the direction longer than this (in UTF-16 units, as Windows counts) is cut.
 const MAX_BASE_LEN: usize = 220;
+// What a cut name keeps, before "~", eight hex digits of a hash, and "...".
+const CUT_LEN: usize = 211;
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum RuleDirection {
@@ -26,11 +30,30 @@ impl RuleDirection {
 
 /// The rule name for one file of an application.
 pub fn rule_name(application: &str, file: &str, direction: RuleDirection) -> String {
-    let mut base = format!("{PREFIX}{application} - {file}");
-    if base.chars().count() > MAX_BASE_LEN {
-        base = base.chars().take(MAX_BASE_LEN).collect::<String>() + "...";
+    format!("{} ({})", base_name(application, file), direction.label())
+}
+
+/// The part before the direction. A name over 220 UTF-16 units keeps 211 of them, then "~", the
+/// first eight hex digits of the SHA-256 of the whole name (UTF-8) and "...", as AppIntBlocker
+/// and AppIntBlockerGUI do: two files whose names only differ past the cut keep their own rules,
+/// and the same file always gets the same name.
+pub fn base_name(application: &str, file: &str) -> String {
+    let base = format!("{PREFIX}{application} - {file}");
+    if base.encode_utf16().count() <= MAX_BASE_LEN {
+        return base;
     }
-    format!("{base} ({})", direction.label())
+    let digest = Sha256::digest(base.as_bytes());
+    let hash: String = digest[..4].iter().map(|b| format!("{b:02x}")).collect();
+    let mut cut = String::new();
+    let mut units = 0;
+    for c in base.chars() {
+        if units + c.len_utf16() > CUT_LEN {
+            break;
+        }
+        units += c.len_utf16();
+        cut.push(c);
+    }
+    format!("{cut}~{hash}...")
 }
 
 /// The application part of a rule name, or None for a name AppIntBlocker or netSwitch did not write.
@@ -96,10 +119,29 @@ mod tests {
     }
 
     #[test]
-    fn long_names_are_cut_like_the_script_does() {
-        let name = rule_name("A", &"x".repeat(300), RuleDirection::Inbound);
-        assert!(name.ends_with("... (Inbound)"));
-        assert_eq!(name.chars().count(), 220 + "... (Inbound)".len());
+    fn long_names_are_cut_with_a_hash_like_the_script_does() {
+        // The same vectors as AppIntBlocker.ps1's and AppIntBlockerGUI's tests.
+        let name = rule_name(
+            &"A".repeat(100),
+            &format!("{}\\first.exe", "d".repeat(105)),
+            RuleDirection::Inbound,
+        );
+        assert_eq!(
+            name,
+            format!(
+                "AppBlocker Rule -{} - {}~f27b9649... (Inbound)",
+                "A".repeat(100),
+                "d".repeat(91)
+            )
+        );
+        assert!(base_name("Çizim Programı", &format!("{}.exe", "ş".repeat(200))).ends_with("~32bea83b..."));
+        let second = rule_name(
+            &"A".repeat(100),
+            &format!("{}\\second.exe", "d".repeat(105)),
+            RuleDirection::Inbound,
+        );
+        assert_ne!(name, second, "names that agree past the cut stay apart");
+        assert_eq!(application_of(&name), Some("A".repeat(100).as_str()));
     }
 
     #[test]
